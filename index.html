@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduPulse – School Digital Services</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:     #07080f;
+  --bg2:    #0d0f1c;
+  --ink:    #e8eaf8;
+  --muted:  #7880a8;
+  --accent: #5b6fff;
+  --accent2:#ff6b4a;
+  --accent3:#4af0c0;
+  --card:   #10121f;
+  --border: rgba(91,111,255,.18);
+  --border2:rgba(255,255,255,.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  overflow-x:hidden;
+  line-height:1.6;
+}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.4;
+}
+
+/* ── SCROLL PROGRESS ── */
+.progress-bar{
+  position:fixed;top:0;left:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));
+  width:0%;z-index:1000;transition:width .1s;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px 48px;
+  background:rgba(7,8,15,.85);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border2);
+}
+.nav-logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:18px;
+  color:var(--ink);letter-spacing:-0.5px;display:flex;align-items:center;gap:8px;
+}
+.nav-logo .dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.7);}}
+.nav-links{display:flex;gap:28px;}
+.nav-links a{
+  font-size:12px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;transition:color .2s;
+}
+.nav-links a:hover{color:var(--ink);}
+.nav-cta{
+  background:var(--accent);color:#fff;
+  padding:8px 20px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  border:none;cursor:pointer;border-radius:3px;transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.nav-cta:hover{background:#7080ff;transform:translateY(-1px);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:120px 48px 80px;
+  position:relative;overflow:hidden;
+}
+/* Grid bg */
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(91,111,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,111,255,.06) 1px, transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
+}
+/* Glow orbs */
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
+.orb1{width:500px;height:500px;background:rgba(91,111,255,.12);top:-100px;right:-100px;}
+.orb2{width:400px;height:400px;background:rgba(255,107,74,.08);bottom:-80px;left:-80px;}
+.orb3{width:300px;height:300px;background:rgba(74,240,192,.06);top:40%;left:40%;}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(91,111,255,.1);border:1px solid rgba(91,111,255,.25);
+  padding:5px 14px;border-radius:100px;margin-bottom:28px;width:fit-content;
+}
+.hero-eyebrow span{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+.hero-eyebrow .live{width:6px;height:6px;background:#4af0c0;border-radius:50%;animation:pulse 1.5s infinite;}
+
+.hero h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(42px,6vw,82px);line-height:1.0;
+  letter-spacing:-2px;margin-bottom:6px;
+  max-width:780px;
+}
+.hero h1 .line1{display:block;color:var(--ink);}
+.hero h1 .line2{
+  display:block;
+  background:linear-gradient(135deg,var(--accent),var(--accent2) 50%,var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero h1 .line3{display:block;color:var(--ink);}
+
+.hero-sub{
+  font-family:'Instrument Serif',serif;font-size:20px;color:var(--muted);
+  max-width:520px;margin:20px 0 36px;line-height:1.65;font-style:italic;
+}
+.hero-sub strong{color:var(--ink);font-style:normal;font-family:'DM Sans',sans-serif;font-weight:600;}
+
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+.btn-primary{
+  background:var(--accent);color:#fff;
+  padding:14px 32px;font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  border:none;cursor:pointer;border-radius:4px;
+  font-family:'DM Sans',sans-serif;
+  display:flex;align-items:center;gap:8px;transition:all .25s;
+  box-shadow:0 8px 30px rgba(91,111,255,.35);
+}
+.btn-primary:hover{background:#7080ff;transform:translateY(-2px);box-shadow:0 14px 40px rgba(91,111,255,.45);}
+.btn-secondary{
+  background:transparent;color:var(--ink);
+  padding:14px 32px;font-size:13px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;
+  border:1px solid var(--border);cursor:pointer;border-radius:4px;
+  font-family:'DM Sans',sans-serif;transition:all .25s;
+  display:flex;align-items:center;gap:8px;
+}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+/* Stats strip */
+.hero-stats{
+  display:flex;gap:48px;margin-top:64px;
+  padding-top:36px;border-top:1px solid var(--border2);
+}
+.stat .num{
+  font-family:'Syne',sans-serif;font-size:36px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;
+}
+.stat .lbl{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;font-weight:500;}
+
+/* ── SECTION SHARED ── */
+section{padding:80px 48px;position:relative;z-index:1;}
+.section-tag{
+  display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;
+}
+.section-tag .dash{width:24px;height:2px;background:var(--accent);}
+.section-tag span{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);}
+.section-title{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(28px,4vw,48px);letter-spacing:-1.5px;
+  line-height:1.05;margin-bottom:14px;
+}
+.section-sub{font-size:15px;color:var(--muted);max-width:520px;line-height:1.7;}
+
+/* ── PROBLEM SECTION ── */
+.problem{background:var(--bg2);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);}
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px;}
+.problem-card{
+  background:var(--card);border:1px solid var(--border2);
+  padding:24px 28px;position:relative;overflow:hidden;
+  transition:border-color .3s,transform .3s;
+}
+.problem-card:hover{border-color:rgba(255,107,74,.35);transform:translateY(-2px);}
+.problem-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent2),transparent);
+}
+.problem-card .icon{font-size:28px;margin-bottom:12px;}
+.problem-card h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;letter-spacing:-.3px;}
+.problem-card p{font-size:12.5px;color:var(--muted);line-height:1.6;}
+
+/* ── SERVICES ── */
+.services-intro{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:56px;flex-wrap:wrap;gap:20px;}
+.services-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+
+.service-card{
+  background:var(--card);
+  border:1px solid var(--border2);
+  padding:32px;
+  position:relative;overflow:hidden;
+  cursor:default;
+  transition:transform .3s, border-color .3s, box-shadow .3s;
+}
+.service-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+/* color-coded top bars */
+.service-card[data-color="blue"]{ border-top:2px solid var(--accent);}
+.service-card[data-color="blue"]:hover{border-color:var(--accent);box-shadow:0 20px 60px rgba(91,111,255,.15);}
+.service-card[data-color="orange"]{ border-top:2px solid var(--accent2);}
+.service-card[data-color="orange"]:hover{border-color:var(--accent2);box-shadow:0 20px 60px rgba(255,107,74,.15);}
+.service-card[data-color="teal"]{ border-top:2px solid var(--accent3);}
+.service-card[data-color="teal"]:hover{border-color:var(--accent3);box-shadow:0 20px 60px rgba(74,240,192,.12);}
+.service-card[data-color="pink"]{ border-top:2px solid #ff5ca8;}
+.service-card[data-color="pink"]:hover{border-color:#ff5ca8;box-shadow:0 20px 60px rgba(255,92,168,.12);}
+
+/* large bg number */
+.service-card .bg-num{
+  position:absolute;right:20px;top:14px;
+  font-family:'Syne',sans-serif;font-size:64px;font-weight:800;
+  color:rgba(255,255,255,.03);line-height:1;pointer-events:none;
+  transition:color .3s;
+}
+.service-card:hover .bg-num{color:rgba(255,255,255,.06);}
+
+.service-icon{
+  width:48px;height:48px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:20px;
+}
+.si-blue{background:rgba(91,111,255,.15);}
+.si-orange{background:rgba(255,107,74,.15);}
+.si-teal{background:rgba(74,240,192,.12);}
+.si-pink{background:rgba(255,92,168,.12);}
+
+.service-card h3{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:19px;
+  letter-spacing:-.4px;margin-bottom:10px;
+}
+.service-card .desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;}
+
+.feature-list{list-style:none;}
+.feature-list li{
+  display:flex;align-items:flex-start;gap:8px;
+  font-size:12px;color:rgba(232,234,248,.65);margin-bottom:7px;line-height:1.5;
+}
+.feature-list li::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  flex-shrink:0;margin-top:5px;
+}
+.service-card[data-color="blue"] .feature-list li::before{background:var(--accent);}
+.service-card[data-color="orange"] .feature-list li::before{background:var(--accent2);}
+.service-card[data-color="teal"] .feature-list li::before{background:var(--accent3);}
+.service-card[data-color="pink"] .feature-list li::before{background:#ff5ca8;}
+
+.service-tag{
+  display:inline-block;padding:4px 12px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:6px;
+}
+.service-card[data-color="blue"] .service-tag{background:rgba(91,111,255,.15);color:var(--accent);}
+.service-card[data-color="orange"] .service-tag{background:rgba(255,107,74,.15);color:var(--accent2);}
+.service-card[data-color="teal"] .service-tag{background:rgba(74,240,192,.1);color:var(--accent3);}
+.service-card[data-color="pink"] .service-tag{background:rgba(255,92,168,.1);color:#ff5ca8;}
+
+/* ── WHY US SECTION ── */
+.why{background:var(--bg2);border-top:1px solid var(--border2);}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px;}
+.why-card{
+  padding:24px;border:1px solid var(--border2);background:var(--card);
+  transition:border-color .3s;
+}
+.why-card:hover{border-color:var(--border);}
+.why-icon{font-size:28px;margin-bottom:12px;}
+.why-card h4{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:7px;letter-spacing:-.2px;}
+.why-card p{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* ── PRICING / PACKAGES ── */
+.packages-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px;}
+.pkg-card{
+  border:1px solid var(--border2);background:var(--card);
+  padding:30px;position:relative;overflow:hidden;
+  transition:transform .3s,box-shadow .3s;
+}
+.pkg-card:hover{transform:translateY(-4px);}
+.pkg-card.featured{
+  background:linear-gradient(145deg,rgba(91,111,255,.12),rgba(74,240,192,.05));
+  border-color:var(--accent);
+  box-shadow:0 0 40px rgba(91,111,255,.15);
+}
+.pkg-badge{
+  position:absolute;top:16px;right:16px;
+  background:var(--accent);color:#fff;
+  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 10px;border-radius:100px;
+}
+.pkg-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.pkg-price{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:38px;letter-spacing:-1.5px;
+  line-height:1;margin-bottom:4px;
+}
+.pkg-card.featured .pkg-price{
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.pkg-period{font-size:12px;color:var(--muted);margin-bottom:20px;}
+.pkg-divider{height:1px;background:var(--border2);margin-bottom:18px;}
+.pkg-features{list-style:none;}
+.pkg-features li{
+  display:flex;align-items:center;gap:9px;
+  font-size:12.5px;color:rgba(232,234,248,.75);margin-bottom:9px;
+}
+.pkg-features li .check{color:var(--accent3);font-size:14px;flex-shrink:0;}
+.pkg-features li .cross{color:rgba(255,255,255,.2);font-size:14px;flex-shrink:0;}
+.pkg-features li.dim{color:rgba(232,234,248,.3);}
+.pkg-btn{
+  width:100%;padding:11px;margin-top:20px;
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;border-radius:3px;transition:all .25s;border:1px solid var(--border);
+  background:transparent;color:var(--ink);
+}
+.pkg-card.featured .pkg-btn{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 20px rgba(91,111,255,.3);}
+.pkg-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pkg-card.featured .pkg-btn:hover{background:#7080ff;}
+
+/* ── TESTIMONIAL / TRUST ── */
+.trust{background:var(--bg2);border-top:1px solid var(--border2);}
+.trust-quote{
+  max-width:720px;margin:0 auto;text-align:center;padding:60px 48px;
+}
+.trust-quote .q-mark{
+  font-family:'Instrument Serif',serif;font-size:80px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:.7;display:block;margin-bottom:10px;
+}
+.trust-quote blockquote{
+  font-family:'Instrument Serif',serif;font-size:22px;
+  color:var(--ink);line-height:1.6;font-style:italic;margin-bottom:20px;
+}
+.trust-quote cite{
+  font-size:12px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;
+  font-style:normal;font-family:'DM Sans',sans-serif;
+}
+
+/* ── PROCESS ── */
+.process-steps{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;margin-top:48px;position:relative;
+}
+.process-steps::before{
+  content:'';position:absolute;top:28px;left:12.5%;right:12.5%;height:1px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--accent));
+}
+.step{text-align:center;padding:0 16px;}
+.step-num{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--card);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 16px;
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+  position:relative;z-index:1;
+  background:var(--bg);
+  transition:border-color .3s,box-shadow .3s;
+}
+.step:nth-child(1) .step-num{border-color:var(--accent);color:var(--accent);}
+.step:nth-child(2) .step-num{border-color:var(--accent2);color:var(--accent2);}
+.step:nth-child(3) .step-num{border-color:var(--accent3);color:var(--accent3);}
+.step:nth-child(4) .step-num{border-color:#ff5ca8;color:#ff5ca8;}
+.step h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:8px;letter-spacing:-.2px;}
+.step p{font-size:11.5px;color:var(--muted);line-height:1.55;}
+
+/* ── CTA SECTION ── */
+.cta-section{
+  padding:100px 48px;
+  background:linear-gradient(135deg,rgba(91,111,255,.08),rgba(74,240,192,.04));
+  border-top:1px solid var(--border2);
+  text-align:center;position:relative;overflow:hidden;
+}
+.cta-section::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(91,111,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,111,255,.05) 1px, transparent 1px);
+  background-size:40px 40px;
+}
+.cta-section h2{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(28px,4vw,54px);letter-spacing:-1.5px;
+  line-height:1.05;margin-bottom:16px;position:relative;z-index:1;
+}
+.cta-section h2 span{
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.cta-section p{font-size:15px;color:var(--muted);margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto;position:relative;z-index:1;}
+.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+.contact-strip{
+  display:flex;justify-content:center;gap:40px;margin-top:40px;
+  padding-top:32px;border-top:1px solid var(--border2);
+  flex-wrap:wrap;position:relative;z-index:1;
+}
+.contact-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.contact-item .c-label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;}
+.contact-item .c-val{font-family:'DM Mono',monospace;font-size:13px;color:var(--ink);font-weight:500;}
+
+/* ── FOOTER ── */
+footer{
+  padding:28px 48px;
+  border-top:1px solid var(--border2);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:14px;
+}
+footer .f-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:rgba(232,234,248,.5);}
+footer p{font-size:11px;color:rgba(232,234,248,.3);font-family:'DM Mono',monospace;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+.hero-eyebrow{animation:fadeUp .6s ease both;}
+.hero h1{animation:fadeUp .7s .1s ease both;}
+.hero-sub{animation:fadeUp .7s .2s ease both;}
+.hero-actions{animation:fadeUp .7s .3s ease both;}
+.hero-stats{animation:fadeUp .7s .45s ease both;}
+
+/* Intersection reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.visible{opacity:1;transform:none;}
+.reveal-delay-1{transition-delay:.1s;}
+.reveal-delay-2{transition-delay:.2s;}
+.reveal-delay-3{transition-delay:.3s;}
+.reveal-delay-4{transition-delay:.4s;}
+
+@media (max-width:768px){
+  nav{padding:14px 20px;}
+  .nav-links,.nav-cta{display:none;}
+  .hero{padding:100px 24px 60px;}
+  section{padding:60px 24px;}
+  .hero-stats{gap:28px;flex-wrap:wrap;}
+  .problem-grid,.services-grid,.packages-grid,.why-grid,.process-steps{grid-template-columns:1fr;}
+  .process-steps::before{display:none;}
+  .cta-section{padding:60px 24px;}
+  footer{padding:20px 24px;flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><div class="dot"></div>EduPulse Digital</div>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#why">Why Us</a>
+    <a href="#packages">Packages</a>
+    <a href="#process">Process</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <button class="nav-cta">Get Free Audit →</button>
+</nav>
+
+<!-- ══════════════════════
+     HERO
+══════════════════════ -->
+<section class="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="hero-eyebrow">
+    <div class="live"></div>
+    <span>School Digital Services · Rewa, M.P.</span>
+  </div>
+
+  <h1>
+    <span class="line1">Your School Deserves</span>
+    <span class="line2">A Digital Presence</span>
+    <span class="line3">That Inspires.</span>
+  </h1>
+
+  <p class="hero-sub">
+    We help school management teams build systems that <strong>save time, impress parents, and grow enrolment</strong> — through smart data management, modern websites, powerful social media & compelling content.
+  </p>
+
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">Explore Our Services <span>↓</span></button>
+    <button class="btn-secondary" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Talk to Us →</button>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat"><div class="num">50+</div><div class="lbl">Schools Served</div></div>
+    <div class="stat"><div class="num">4</div><div class="lbl">Core Services</div></div>
+    <div class="stat"><div class="num">98%</div><div class="lbl">Client Retention</div></div>
+    <div class="stat"><div class="num">3×</div><div class="lbl">Avg. Enrolment Growth</div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════
+     PROBLEM
+══════════════════════ -->
+<section class="problem" id="problem">
+  <div class="section-tag reveal"><div class="dash"></div><span>The Challenge</span></div>
+  <h2 class="section-title reveal">Is Your School Stuck<br>in the Offline Age?</h2>
+  <p class="section-sub reveal">Most schools are doing great work inside their classrooms — but the world outside doesn't see it. Here's what we hear from school managers every week:</p>
+  <div class="problem-grid">
+    <div class="problem-card reveal">
+      <div class="icon">🗂️</div>
+      <h3>Data is a Mess</h3>
+      <p>Student records, fee data, attendance sheets — scattered across registers, Excel files & WhatsApp. No single source of truth. Errors happen. Time is wasted.</p>
+    </div>
+    <div class="problem-card reveal reveal-delay-1">
+      <div class="icon">🌐</div>
+      <h3>Website is Outdated or Missing</h3>
+      <p>Parents Google your school and find nothing, or a 2015 website that looks worse than your competitors. First impressions are formed in 3 seconds.</p>
+    </div>
+    <div class="problem-card reveal reveal-delay-2">
+      <div class="icon">📱</div>
+      <h3>No Social Media Presence</h3>
+      <p>Your school hosts amazing events, achieves great results — but it's all invisible online. New parents are choosing schools based on Instagram and Facebook activity.</p>
+    </div>
+    <div class="problem-card reveal reveal-delay-3">
+      <div class="icon">✍️</div>
+      <h3>No Time to Create Content</h3>
+      <p>Teachers and management are too busy running the school to write posts, design notices, make videos, or create newsletters. And the silence hurts your reputation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════
+     SERVICES
+══════════════════════ -->
+<section id="services" style="padding-top:90px;position:relative;z-index:1;">
+  <div class="services-intro">
+    <div>
+      <div class="section-tag reveal"><div class="dash"></div><span>Our Services</span></div>
+      <h2 class="section-title reveal">Four Services.<br>One Mission.</h2>
+    </div>
+    <p class="section-sub reveal" style="margin:0;">Everything your school needs to operate efficiently online, presented in a way that builds trust and drives admissions.</p>
+  </div>
+
+  <div class="services-grid">
+
+    <!-- SERVICE 1: Data Management -->
+    <div class="service-card reveal" data-color="blue">
+      <div class="bg-num">01</div>
+      <div class="service-icon si-blue">🗄️</div>
+      <h3>Data Management</h3>
+      <p class="desc">We digitise, organise, and maintain all your school's critical records — from student profiles and academic history to fee ledgers and staff data. You get a clean, accessible, error-free database from day one.</p>
+      <ul class="feature-list">
+        <li>Student records — admission to alumni database</li>
+        <li>Fee management & automated due reminders</li>
+        <li>Attendance tracking & monthly reports</li>
+        <li>Exam marks, report cards & grade sheets</li>
+        <li>Staff records, payroll & leave management</li>
+        <li>Document digitisation (TC, MC, certificates)</li>
+        <li>Secure cloud backup — access from anywhere</li>
+        <li>Custom dashboards for principal & admin</li>
+      </ul>
+      <span class="service-tag">Operational Efficiency</span>
+    </div>
+
+    <!-- SERVICE 2: Website Management -->
+    <div class="service-card reveal reveal-delay-1" data-color="orange">
+      <div class="bg-num">02</div>
+      <div class="service-icon si-orange">🌐</div>
+      <h3>Website Management</h3>
+      <p class="desc">A professional, fast, mobile-first website designed specifically for your school — built to impress parents, rank on Google, and make your school look as great as it truly is.</p>
+      <ul class="feature-list">
+        <li>Custom school website design & development</li>
+        <li>Mobile responsive, fast-loading pages</li>
+        <li>Admissions inquiry forms & online registration</li>
+        <li>Notice board, gallery & news sections</li>
+        <li>Separate portals for students, parents & staff</li>
+        <li>SEO setup — rank when parents search locally</li>
+        <li>Monthly content updates & maintenance</li>
+        <li>Google Maps, contact & social integration</li>
+      </ul>
+      <span class="service-tag">First Impressions</span>
+    </div>
+
+    <!-- SERVICE 3: Social Media Management -->
+    <div class="service-card reveal reveal-delay-2" data-color="teal">
+      <div class="bg-num">03</div>
+      <div class="service-icon si-teal">📲</div>
+      <h3>Social Media Management</h3>
+      <p class="desc">We manage your school's Instagram, Facebook, and WhatsApp broadcast channels — posting consistently, engaging your community, and building the kind of reputation that fills seats every admission season.</p>
+      <ul class="feature-list">
+        <li>Instagram & Facebook page setup & branding</li>
+        <li>Daily / weekly post scheduling & publishing</li>
+        <li>Event coverage — photos, reels & stories</li>
+        <li>Achievement highlights & student spotlights</li>
+        <li>Comment management & community engagement</li>
+        <li>WhatsApp broadcast setup for parents</li>
+        <li>Monthly analytics & growth reports</li>
+        <li>Festive & seasonal branded posts</li>
+      </ul>
+      <span class="service-tag">Community & Reputation</span>
+    </div>
+
+    <!-- SERVICE 4: Content Creation -->
+    <div class="service-card reveal reveal-delay-3" data-color="pink">
+      <div class="bg-num">04</div>
+      <div class="service-icon si-pink">✍️</div>
+      <h3>Content Creation</h3>
+      <p class="desc">From beautifully designed school notices and newsletters to admission brochures, result cards, videos and social posts — we handle all your school's visual and written content needs with a consistent brand identity.</p>
+      <ul class="feature-list">
+        <li>School notices, circulars & official letters</li>
+        <li>Admission brochures & info packets</li>
+        <li>Annual magazine / school newsletter</li>
+        <li>Event posters, banners & flex designs</li>
+        <li>Marksheets, certificates & ID cards (digital)</li>
+        <li>Explainer videos & school tour reels</li>
+        <li>Parent communication templates</li>
+        <li>Brand guidelines & logo design</li>
+      </ul>
+      <span class="service-tag">Brand Identity</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════
+     WHY US
+══════════════════════ -->
+<section class="why" id="why">
+  <div class="section-tag reveal"><div class="dash"></div><span>Why EduPulse</span></div>
+  <h2 class="section-title reveal">Built Exclusively<br>for Schools.</h2>
+  <div class="why-grid">
+    <div class="why-card reveal">
+      <div class="why-icon">🎓</div>
+      <h4>Education-First Mindset</h4>
+      <p>We don't work with restaurants or shops. We work exclusively with educational institutions — so we understand your calendar, your stakeholders, and your compliance requirements.</p>
+    </div>
+    <div class="why-card reveal reveal-delay-1">
+      <div class="why-icon">⚡</div>
+      <h4>Fast Turnaround, Always</h4>
+      <p>Need a notice designed in 2 hours? An urgent notice published on social media? We operate on school time — which means fast, responsive support when it matters most.</p>
+    </div>
+    <div class="why-card reveal reveal-delay-2">
+      <div class="why-icon">🔒</div>
+      <h4>Data Privacy & Security</h4>
+      <p>Student data is sensitive. We follow strict data handling protocols with encrypted storage, access controls, and regular security audits — your data is always safe with us.</p>
+    </div>
+    <div class="why-card reveal reveal-delay-3">
+      <div class="why-icon">📊</div>
+      <h4>Measurable Results</h4>
+      <p>Every service we provide comes with monthly reports — website traffic, social media growth, data accuracy scores. You see exactly what you're getting for your investment.</p>
+    </div>
+    <div class="why-card reveal reveal-delay-4">
+      <div class="why-icon">🤝</div>
+      <h4>Dedicated Account Manager</h4>
+      <p>You get a single point of contact who knows your school inside out. No tickets, no chatbots — just a person you can call, WhatsApp, or email any working day.</p>
+    </div>
+    <div class="why-card reveal">
+      <div class="why-icon">🌱</div>
+      <h4>Grows With Your School</h4>
+      <p>Start with one service and add more as you grow. Our modular approach means you never pay for what you don't need, but we're ready when you need to scale up.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════
+     PACKAGES
+══════════════════════ -->
+<section id="packages" style="position:relative;z-index:1;">
+  <div class="section-tag reveal"><div class="dash"></div><span>Packages</span></div>
+  <h2 class="section-title reveal">Simple, Transparent<br>Pricing.</h2>
+  <p class="section-sub reveal">All packages include onboarding support, training for your staff, and a 30-day satisfaction guarantee. No hidden charges.</p>
+  <div class="packages-grid">
+
+    <div class="pkg-card reveal">
+      <div class="pkg-name">Starter</div>
+      <div class="pkg-price">₹4,999</div>
+      <div class="pkg-period">per month · annual billing</div>
+      <div class="pkg-divider"></div>
+      <ul class="pkg-features">
+        <li><span class="check">✓</span> Website Setup & Management</li>
+        <li><span class="check">✓</span> 12 Social Media Posts / month</li>
+        <li><span class="check">✓</span> Basic Notice & Certificate Design</li>
+        <li><span class="check">✓</span> WhatsApp Broadcast Setup</li>
+        <li class="dim"><span class="cross">✗</span> Data Management System</li>
+        <li class="dim"><span class="cross">✗</span> Analytics Dashboard</li>
+        <li class="dim"><span class="cross">✗</span> Video Content</li>
+      </ul>
+      <button class="pkg-btn">Get Started →</button>
+    </div>
+
+    <div class="pkg-card featured reveal reveal-delay-1">
+      <div class="pkg-badge">Most Popular</div>
+      <div class="pkg-name">Growth</div>
+      <div class="pkg-price">₹9,999</div>
+      <div class="pkg-period">per month · annual billing</div>
+      <div class="pkg-divider"></div>
+      <ul class="pkg-features">
+        <li><span class="check">✓</span> Full Data Management System</li>
+        <li><span class="check">✓</span> Website + SEO Optimisation</li>
+        <li><span class="check">✓</span> 24 Social Posts + Stories / month</li>
+        <li><span class="check">✓</span> All Document Design (notices, cards)</li>
+        <li><span class="check">✓</span> Monthly Analytics Report</li>
+        <li><span class="check">✓</span> Dedicated Account Manager</li>
+        <li class="dim"><span class="cross">✗</span> Video Reels & Production</li>
+      </ul>
+      <button class="pkg-btn">Get Started →</button>
+    </div>
+
+    <div class="pkg-card reveal reveal-delay-2">
+      <div class="pkg-name">Premium</div>
+      <div class="pkg-price">₹17,999</div>
+      <div class="pkg-period">per month · annual billing</div>
+      <div class="pkg-divider"></div>
+      <ul class="pkg-features">
+        <li><span class="check">✓</span> Everything in Growth, plus:</li>
+        <li><span class="check">✓</span> 2 Video Reels / month (on-site)</li>
+        <li><span class="check">✓</span> Admission Campaign Management</li>
+        <li><span class="check">✓</span> Annual Magazine / Brochure Design</li>
+        <li><span class="check">✓</span> Google & Facebook Ads (setup)</li>
+        <li><span class="check">✓</span> Priority 24/7 Support</li>
+        <li><span class="check">✓</span> Quarterly Strategy Review</li>
+      </ul>
+      <button class="pkg-btn">Get Started →</button>
+    </div>
+
+  </div>
+  <p class="reveal" style="margin-top:20px;font-size:12px;color:var(--muted);text-align:center;">* Custom enterprise pricing available for school groups and chains. <a href="#contact" style="color:var(--accent);text-decoration:none;">Contact us</a> for a tailored quote.</p>
+</section>
+
+<!-- ══════════════════════
+     PROCESS
+══════════════════════ -->
+<section style="background:var(--bg2);border-top:1px solid var(--border2);position:relative;z-index:1;padding:80px 48px;">
+  <div class="section-tag reveal"><div class="dash"></div><span>How It Works</span></div>
+  <h2 class="section-title reveal">Up & Running in<br>Just 4 Steps.</h2>
+  <div class="process-steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <h4>Free Audit Call</h4>
+      <p>We review your current online presence, data systems, and communication gaps. No commitment needed — just clarity on what's possible.</p>
+    </div>
+    <div class="step reveal reveal-delay-1">
+      <div class="step-num">02</div>
+      <h4>Custom Proposal</h4>
+      <p>We put together a tailored plan based on your school's size, budget, and goals — with clear deliverables, timelines, and costs.</p>
+    </div>
+    <div class="step reveal reveal-delay-2">
+      <div class="step-num">03</div>
+      <h4>Onboarding & Setup</h4>
+      <p>We set up systems, train your staff, migrate your data, and launch your digital presence — all within 2 weeks of signing up.</p>
+    </div>
+    <div class="step reveal reveal-delay-3">
+      <div class="step-num">04</div>
+      <h4>Ongoing Partnership</h4>
+      <p>Monthly reports, regular content, real-time support. We handle the digital side so your team can focus on education.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════
+     TRUST / QUOTE
+══════════════════════ -->
+<section class="trust">
+  <div class="trust-quote">
+    <span class="q-mark">"</span>
+    <blockquote class="reveal">Within 3 months of working with EduPulse, our admission enquiries doubled. Parents started commenting that our school looks more professional than private schools in the city. The data system alone saves us 10 hours a week.</blockquote>
+    <cite class="reveal">— Principal, Delhi Public School Partner, Madhya Pradesh</cite>
+  </div>
+</section>
+
+<!-- ══════════════════════
+     CTA
+══════════════════════ -->
+<section class="cta-section" id="contact">
+  <h2 class="reveal">Ready to Transform<br><span>Your School's Digital Future?</span></h2>
+  <p class="reveal">Let's start with a free 30-minute audit call. No pressure, no commitment — just actionable insights you can use today.</p>
+  <div class="cta-actions reveal">
+    <button class="btn-primary">📞 Book a Free Call</button>
+    <button class="btn-secondary">📧 Send Us a Message</button>
+  </div>
+  <div class="contact-strip reveal">
+    <div class="contact-item">
+      <span class="c-label">WhatsApp / Call</span>
+      <span class="c-val">+91-98765-43210</span>
+    </div>
+    <div class="contact-item">
+      <span class="c-label">Email</span>
+      <span class="c-val">hello@edupulse.in</span>
+    </div>
+    <div class="contact-item">
+      <span class="c-label">Website</span>
+      <span class="c-val">www.edupulse.in</span>
+    </div>
+    <div class="contact-item">
+      <span class="c-label">Location</span>
+      <span class="c-val">Rewa, Madhya Pradesh</span>
+    </div>
+    <div class="contact-item">
+      <span class="c-label">Working Hours</span>
+      <span class="c-val">Mon–Sat, 9 AM – 7 PM</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">EduPulse Digital</div>
+  <p>© 2025 EduPulse Digital Services · Rewa, M.P. · Empowering Schools Online.</p>
+  <p style="color:rgba(232,234,248,.2);">Built with ❤ for Indian Schools</p>
+</footer>
+
+<script>
+// Scroll progress bar
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docH = document.body.scrollHeight - window.innerHeight;
+  const pct = (scrollTop / docH) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+});
+
+// Intersection observer for .reveal elements
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting) { e.target.classList.add('visible'); }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Counter animation for stats
+function animateCounter(el, target, suffix='', duration=1800) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start += step;
+    if(start >= target) { start = target; clearInterval(timer); }
+    el.textContent = (Number.isInteger(target) ? Math.floor(start) : start.toFixed(0)) + suffix;
+  }, 16);
+}
+
+// Trigger counter on hero stats scroll-into-view
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const nums = e.target.querySelectorAll('.stat .num');
+      const data = [['50','+'],['4',''],['98','%'],['3','×']];
+      nums.forEach((n,i) => {
+        animateCounter(n, parseInt(data[i][0]), data[i][1]);
+      });
+      statsObserver.unobserve(e.target);
+    }
+  });
+}, {threshold: 0.5});
+const stats = document.querySelector('.hero-stats');
+if(stats) statsObserver.observe(stats);
+</script>
+</body>
+</html>
